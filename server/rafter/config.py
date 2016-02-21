@@ -1,14 +1,9 @@
-import cherrypy
-
-
 def app_config(root, extra):
 
     cfg = extra.copy()
     cfg.update({
         '/': {
-            'tools.staticdir.root': root,
-            'tools.db.on': True,
-            'request.dispatch': cherrypy.dispatch.MethodDispatcher()
+            'tools.staticdir.root': root
         },
         '/static': {
             'tools.staticdir.on': True,

@@ -3,9 +3,8 @@
 import os
 import cherrypy
 
-from .controller import Main
+from .controller import Main, tree
 from .config import app_config
-from .db.satool import SATool
 
 
 def application(root=None, port=8070, extra={}):
@@ -18,8 +17,11 @@ def application(root=None, port=8070, extra={}):
         'server.socket_host': '0.0.0.0',
         'server.socket_port': port,
     })
+
     cherrypy.tree.mount(Main(), '/', config)
-    cherrypy.tools.db = SATool()
+    for path in tree:
+        model = tree[path]
+        cherrypy.tree.mount(model, path, model.config)
     return cherrypy.tree
 
 
