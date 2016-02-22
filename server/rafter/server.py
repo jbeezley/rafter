@@ -7,7 +7,7 @@ from .controller import Main, tree
 from .config import app_config
 
 
-def application(root=None, port=8070, extra={}):
+def application(root=None, port=8070, extra={}, db=None):
 
     if root is None:  # serve from cwd by default
         root = os.path.abspath(os.curdir)

@@ -1,3 +1,4 @@
+import cherrypy
 from bson import ObjectId
 
 from ..db import get_db
@@ -23,6 +24,13 @@ class Base(object):
             doc['_id'] = ObjectId(doc['_id'])
         return doc
 
+    def objectid(self, id):
+        try:
+            id = ObjectId(id)
+        except Exception:
+            id = None
+        return id
+
     def get_db(self):
         return get_db()
 
@@ -41,15 +49,18 @@ class Base(object):
         if id is None:
             return [self.to_json(doc) for doc in col.find(kw)]
         else:
-            return self.to_json(col.find_one({'_id': ObjectId(id)}))
+            doc = self.to_json(col.find_one({'_id': self.objectid(id)}))
+            if doc is None:
+                cherrypy.response.status = 404
+            return doc
 
     def update(self, id, doc):
         col = self.get_collection()
         doc = self.from_json(doc)
-        if col.replace_one({'_id': ObjectId(id)}, doc).matched_count == 0:
+        if col.replace_one({'_id': self.objectid(id)}, doc).matched_count == 0:
             doc = None
         return self.to_json(doc)
 
     def delete(self, id):
         col = self.get_collection()
-        return col.delete_one({'_id': ObjectId(id)}).deleted_count > 0
+        return col.delete_one({'_id': self.objectid(id)}).deleted_count > 0
